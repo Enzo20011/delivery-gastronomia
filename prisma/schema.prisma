@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+  nombre   String @default("Admin")
+}
+
+model Config {
+  id              String @id @default("singleton")
+  nombreNegocio   String @default("Tu negocio gastronómico")
+  whatsappNumero  String @default("")
+}
+
+model Categoria {
+  id        String     @id @default(cuid())
+  nombre    String
+  orden     Int        @default(0)
+  productos Producto[]
+}
+
+model Producto {
+  id          String    @id @default(cuid())
+  nombre      String
+  descripcion String    @default("")
+  precio      Int
+  imagenUrl   String    @default("")
+  disponible  Boolean   @default(true)
+  destacado   Boolean   @default(false)
+  categoriaId String
+  categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+  creadoEn    DateTime  @default(now())
+}
+
+model PushSubscription {
+  id       String   @id @default(cuid())
+  endpoint String   @unique
+  p256dh   String
+  auth     String
+  creadoEn DateTime @default(now())
+}

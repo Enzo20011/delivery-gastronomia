@@ -1,0 +1,9 @@
+{
+  "name": "Menú Digital",
+  "short_name": "Menú",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0f12",
+  "theme_color": "#0d0f12",
+  "icons": []
+}
