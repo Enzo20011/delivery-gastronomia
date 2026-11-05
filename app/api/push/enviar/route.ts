@@ -1,15 +1,17 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
-import { authOptions } from "@/lib/auth";
+import { getSession } from "@/lib/session";
+import { DEMO } from "@/lib/demo";
 import { webpush } from "@/lib/push";
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
   const { titulo, cuerpo, url } = await req.json();
   if (!titulo) return NextResponse.json({ error: "Falta el título" }, { status: 400 });
+  // En la demo no hay suscriptores reales: se simula el envío sin mandar nada.
+  if (DEMO) return NextResponse.json({ enviadas: 0, total: 0, demo: true });
 
   const suscripciones = await prisma.pushSubscription.findMany();
   const payload = JSON.stringify({ titulo, cuerpo, url: url || "/" });

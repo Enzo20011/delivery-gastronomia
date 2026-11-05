@@ -68,3 +68,14 @@ npm run dev
 Con lo que ya usaste en otros proyectos alcanza: base en **Neon**, app en **Railway** o
 **Vercel**. Variables de entorno iguales a `.env`, y corré `npx prisma migrate deploy`
 después del primer deploy.
+
+## Modo demo
+
+Con `DEMO_MODE=1` (y `NEXT_PUBLIC_DEMO_MODE=1` para mostrar el aviso) la app funciona como una demo pública:
+
+- El panel de administración se abre **sin contraseña**.
+- Cada visitante recibe **su propio espacio de datos**, identificado por una cookie. Dos personas que editan al mismo tiempo no se ven entre sí.
+- Los espacios se crean con datos de ejemplo y se **borran solos a las 2 horas**. También hay un botón para restablecerlos.
+- Las notificaciones push se simulan y no se guardan suscripciones.
+
+Sin esas variables, la app se comporta como siempre, con login.

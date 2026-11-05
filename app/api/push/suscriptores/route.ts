@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
-import { authOptions } from "@/lib/auth";
+import { getSession } from "@/lib/session";
+import { DEMO } from "@/lib/demo";
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
-  const total = await prisma.pushSubscription.count();
+  const total = DEMO ? 0 : await prisma.pushSubscription.count();
   return NextResponse.json({ total });
 }

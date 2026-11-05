@@ -1,13 +1,15 @@
 import { prisma } from "@/lib/prisma";
-
-const CONFIG_ID = "singleton";
+import { demoScope, configIdFor } from "@/lib/demo";
 
 export async function getConfig() {
+  const demoId = await demoScope();
+  const id = configIdFor(demoId);
   return prisma.config.upsert({
-    where: { id: CONFIG_ID },
+    where: { id },
     update: {},
     create: {
-      id: CONFIG_ID,
+      id,
+      demoId,
       whatsappNumero: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "",
     },
   });

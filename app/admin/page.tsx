@@ -1,15 +1,17 @@
 import Link from "next/link";
 import { Package, Layers, Bell, ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { DEMO, demoScope } from "@/lib/demo";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
+  const demoId = await demoScope();
   const [totalProductos, disponibles, totalCategorias, totalSuscriptores] = await Promise.all([
-    prisma.producto.count(),
-    prisma.producto.count({ where: { disponible: true } }),
-    prisma.categoria.count(),
-    prisma.pushSubscription.count(),
+    prisma.producto.count({ where: { demoId } }),
+    prisma.producto.count({ where: { demoId, disponible: true } }),
+    prisma.categoria.count({ where: { demoId } }),
+    DEMO ? Promise.resolve(0) : prisma.pushSubscription.count(),
   ]);
 
   const tarjetas = [

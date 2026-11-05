@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { authOptions } from "@/lib/auth";
+import { getSession } from "@/lib/session";
+import { demoScope, configIdFor } from "@/lib/demo";
 import { getConfig } from "@/lib/config";
 
 export async function GET() {
@@ -19,7 +19,7 @@ const configSchema = z.object({
 });
 
 export async function PATCH(req: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
   const body = await req.json();
@@ -29,8 +29,9 @@ export async function PATCH(req: Request) {
   }
 
   await getConfig();
+  const demoId = await demoScope();
   const config = await prisma.config.update({
-    where: { id: "singleton" },
+    where: { id: configIdFor(demoId) },
     data: parsed.data,
   });
   return NextResponse.json(config);

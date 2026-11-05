@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { authOptions } from "@/lib/auth";
+import { getSession } from "@/lib/session";
+import { DEMO } from "@/lib/demo";
 
 const schema = z.object({
   passwordActual: z.string().min(1, "Ingresá tu contraseña actual"),
@@ -11,9 +11,10 @@ const schema = z.object({
 });
 
 export async function PATCH(req: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
+  if (DEMO) return NextResponse.json({ ok: true }); // en la demo no hay contraseña
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) {

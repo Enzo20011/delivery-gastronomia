@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { authOptions } from "@/lib/auth";
+import { getSession } from "@/lib/session";
+import { demoScope } from "@/lib/demo";
 
 const actualizarSchema = z.object({
   nombre: z.string().min(1).optional(),
@@ -15,9 +15,10 @@ const actualizarSchema = z.object({
 });
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
+  const demoId = await demoScope();
   const body = await req.json();
   const parsed = actualizarSchema.safeParse(body);
   if (!parsed.success) {
@@ -25,15 +26,15 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 
   if (parsed.data.categoriaId) {
-    const categoria = await prisma.categoria.findUnique({
-      where: { id: parsed.data.categoriaId },
+    const categoria = await prisma.categoria.findFirst({
+      where: { id: parsed.data.categoriaId, demoId },
     });
     if (!categoria) {
       return NextResponse.json({ error: "La categoría seleccionada no existe" }, { status: 400 });
     }
   }
 
-  const existe = await prisma.producto.findUnique({ where: { id: params.id } });
+  const existe = await prisma.producto.findFirst({ where: { id: params.id, demoId } });
   if (!existe) return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
 
   const producto = await prisma.producto.update({
@@ -44,10 +45,11 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 }
 
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  const demoId = await demoScope();
 
-  const existe = await prisma.producto.findUnique({ where: { id: params.id } });
+  const existe = await prisma.producto.findFirst({ where: { id: params.id, demoId } });
   if (!existe) return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
 
   await prisma.producto.delete({ where: { id: params.id } });

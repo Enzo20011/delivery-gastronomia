@@ -34,13 +34,15 @@ export default function AdminNav() {
           </Link>
         ))}
       </div>
-      <button
-        onClick={() => signOut({ callbackUrl: "/admin/login" })}
-        className="flex shrink-0 items-center gap-1.5 text-sm text-cream/50 hover:text-cream"
-      >
-        <LogOut size={15} />
-        Salir
-      </button>
+      {process.env.NEXT_PUBLIC_DEMO_MODE !== "1" && (
+        <button
+          onClick={() => signOut({ callbackUrl: "/admin/login" })}
+          className="flex shrink-0 items-center gap-1.5 text-sm text-cream/50 hover:text-cream"
+        >
+          <LogOut size={15} />
+          Salir
+        </button>
+      )}
     </nav>
   );
 }
