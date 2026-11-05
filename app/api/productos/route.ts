@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
-import { demoScope } from "@/lib/demo";
+import { authOptions } from "@/lib/auth";
 
 export async function GET() {
-  const demoId = await demoScope();
   const productos = await prisma.producto.findMany({
-    where: { demoId },
     orderBy: { creadoEn: "asc" },
     include: { categoria: true },
   });
@@ -25,23 +23,22 @@ const productoSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const session = await getSession();
+  const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
-  const demoId = await demoScope();
   const body = await req.json();
   const parsed = productoSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const categoria = await prisma.categoria.findFirst({
-    where: { id: parsed.data.categoriaId, demoId },
+  const categoria = await prisma.categoria.findUnique({
+    where: { id: parsed.data.categoriaId },
   });
   if (!categoria) {
     return NextResponse.json({ error: "La categoría seleccionada no existe" }, { status: 400 });
   }
 
-  const producto = await prisma.producto.create({ data: { ...parsed.data, demoId } });
+  const producto = await prisma.producto.create({ data: parsed.data });
   return NextResponse.json(producto, { status: 201 });
 }

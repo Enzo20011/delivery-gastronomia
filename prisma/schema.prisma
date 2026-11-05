@@ -15,14 +15,9 @@ model Admin {
 }
 
 model Config {
-  id              String   @id @default("singleton")
-  nombreNegocio   String   @default("Tu negocio gastronómico")
-  whatsappNumero  String   @default("")
-  // Modo demo: cada visitante tiene su propio espacio (demoId). Vacío = datos reales.
-  demoId          String   @default("")
-  creadoEn        DateTime @default(now())
-
-  @@index([demoId])
+  id              String @id @default("singleton")
+  nombreNegocio   String @default("Tu negocio gastronómico")
+  whatsappNumero  String @default("")
 }
 
 model Categoria {
@@ -30,9 +25,6 @@ model Categoria {
   nombre    String
   orden     Int        @default(0)
   productos Producto[]
-  demoId    String     @default("")
-
-  @@index([demoId])
 }
 
 model Producto {
@@ -46,9 +38,6 @@ model Producto {
   categoriaId String
   categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
   creadoEn    DateTime  @default(now())
-  demoId      String    @default("")
-
-  @@index([demoId])
 }
 
 model PushSubscription {

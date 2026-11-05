@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { DEMO } from "@/lib/demo";
 
 export async function POST(req: Request) {
   const sub = await req.json();
@@ -9,7 +8,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Suscripción inválida" }, { status: 400 });
   }
 
-  if (DEMO) return NextResponse.json({ ok: true }); // la demo no guarda suscripciones
   await prisma.pushSubscription.upsert({
     where: { endpoint: sub.endpoint },
     update: {},
